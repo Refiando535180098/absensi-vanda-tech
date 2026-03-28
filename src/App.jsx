@@ -195,7 +195,7 @@ export default function App() {
         <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 pb-8 rounded-b-[2.5rem] shadow-lg shrink-0 relative z-10">
           <div className="flex justify-between items-start mb-6">
             <div>
-              <p className="text-blue-100 text-sm font-medium mb-1">Selamat Datang,</p>
+              <p className="text-blue-100 text-sm font-medium mb-1">Selamat Datang daieaifj,</p>
               <h1 className="text-2xl font-bold flex items-center gap-2">{userId.substring(0,9)}</h1>
             </div>
             <div className="bg-white/20 p-2 rounded-full backdrop-blur-sm">
