@@ -196,7 +196,6 @@ export default function App() {
           <div className="flex justify-between items-start mb-6">
             <div>
               <p className="text-blue-100 text-sm font-medium mb-1">Selamat Datang,</p>
-              <p>test update</p>
               <h1 className="text-2xl font-bold flex items-center gap-2">{userId.substring(0,9)}</h1>
             </div>
             <div className="bg-white/20 p-2 rounded-full backdrop-blur-sm">
