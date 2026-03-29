@@ -652,8 +652,6 @@ const NoData = () => <p className="text-center text-slate-400 text-[10px] font-b
 const Toast = ({ message, type }) => (
   // Wadah full screen dengan efek blur
   <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm animate-fade-in pointer-events-none">
-    
-    // Kotak Pop-up melayang di tengah
     <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl flex flex-col items-center text-center w-full max-w-xs border border-white animate-fade-in-down pointer-events-auto">
       
       {/* Ikon besar menyesuaikan status (Sukses/Gagal) */}
@@ -670,7 +668,6 @@ const Toast = ({ message, type }) => (
       <p className="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed">
         {message}
       </p>
-      
     </div>
   </div>
 );
