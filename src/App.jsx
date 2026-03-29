@@ -111,6 +111,7 @@ export default function App() {
         jenis: currentType,
         evidence_url: pUrl,
         location: location,
+        // --- UBAH BARIS INI (Perbaikan Link Google Maps) ---
         location_map: location ? `https://www.google.com/maps?q=${location.lat},${location.lng}` : null,
         timestamp: Date.now()
       }]);
