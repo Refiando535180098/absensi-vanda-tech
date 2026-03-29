@@ -90,17 +90,21 @@ export default function App() {
 
       const { data: { publicUrl } } = supabase.storage.from('attendance_evidence').getPublicUrl(fileName);
 
+      // --- BAGIAN YANG DIUBAH: face_score DIHAPUS DARI SINI ---
       const { error: dbErr } = await supabase.from('attendance').insert([{
         user_id: session.user.id,
         jenis: currentType,
-        evidence_url: publicUrl,
-        face_score: faceScore,
+        evidence_url: publicUrl, // Ini tetap perlu kalau kamu mau simpan foto bukti
         timestamp: Date.now()
+        // face_score sengaja tidak dimasukkan agar tidak perlu buat kolom di DB
       }]);
 
       if (!dbErr) {
         showToast(`Absen ${currentType} Berhasil!`, "success");
         fetchData(session.user.id);
+      } else {
+        console.error(dbErr);
+        showToast("Database menolak data. Cek kolom evidence_url!", "error");
       }
     } catch (err) {
       showToast("Gagal simpan absen.", "error");
