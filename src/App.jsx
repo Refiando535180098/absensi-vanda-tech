@@ -197,7 +197,7 @@ export default function App() {
           {activeTab === 'summary' && <SummaryTab attendanceData={attendanceData} reportData={reportData} leaveData={leaveData} historyType={historyType} setHistoryType={setHistoryType} />}
           {activeTab === 'leave' && <LeaveForm onSubmit={(d) => handleSaveData('leaves', d, session.user.id)} onCancel={() => setActiveTab('home')} />}
           {activeTab === 'manual' && <ManualForm onSubmit={(d) => handleSaveData('attendance', d, session.user.id)} onCancel={() => setActiveTab('home')} />}
-          {activeTab === 'report' && <ReportForm onSubmit={(d) => handleSaveData('reports', d, session.user.id)} profile={profile} onCancel={() => setActiveTab('home')} />}
+          {activeTab === 'report' && <ReportForm onSubmit={(d) => handleSaveData('reports', d, session.user.id)} profile={profile} getLoc={getLoc} showToast={showToast} onCancel={() => setActiveTab('home')} />}
           {activeTab === 'profile' && <ProfileTab profile={profile} onUpdate={(p) => updateProfile(session.user.id, p)} showToast={showToast} />}
         </main>
 
@@ -467,57 +467,109 @@ function FaceScanAnimation({ score, onConfirm, onReset }) {
   );
 }
 
-function ReportForm({ onSubmit, showToast, profile }) {
-  const [file, setFile] = useState(null);
+function ReportForm({ onSubmit, showToast, profile, getLoc }) {
+  const [docs, setDocs] = useState([]);
+  const [photos, setPhotos] = useState([]);
   const [up, setUp] = useState(false);
-  const fRef = useRef();
+  const docRef = useRef();
+  const photoRef = useRef();
 
   const handleSend = async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
     const judul = fd.get('judul');
     const deskripsi = fd.get('deskripsi');
-    let fUrl = null;
 
-    if (file) {
-      setUp(true);
-      showToast("Mengunggah file...", "info");
-      const fName = `${profile.id}/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-      const { error } = await supabase.storage.from('report_files').upload(fName, file);
-      if (!error) {
-        const { data: { publicUrl } } = supabase.storage.from('report_files').getPublicUrl(fName);
-        fUrl = publicUrl;
+    setUp(true);
+    showToast("Mengunci Lokasi & Mengunggah File...", "info");
+
+    try {
+      // 1. Ambil Lokasi GPS
+      const loc = await getLoc();
+      const location_map = loc ? `https://www.google.com/maps?q=${loc.lat},${loc.lng}` : null;
+
+      // 2. Upload Semua File & Foto ke Supabase Storage
+      const allFiles = [...docs, ...photos];
+      let uploadedUrls = [];
+
+      for (const file of allFiles) {
+        const fName = `${profile.id}/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+        const { error } = await supabase.storage.from('report_files').upload(fName, file);
+        if (!error) {
+          const { data: { publicUrl } } = supabase.storage.from('report_files').getPublicUrl(fName);
+          uploadedUrls.push(publicUrl);
+        }
       }
+
+      // 3. Simpan ke Database
+      await onSubmit({ 
+        judul, 
+        deskripsi, 
+        file_urls: uploadedUrls, // Simpan sebagai JSON/Array
+        location: loc,
+        location_map: location_map 
+      });
+
+      showToast("Laporan Berhasil Terkirim!", "success");
+      setDocs([]);
+      setPhotos([]);
+      e.target.reset();
+    } catch (err) {
+      showToast("Gagal mengirim laporan.", "error");
+    } finally {
+      setUp(false);
     }
-    await onSubmit({ judul, deskripsi, file_url: fUrl });
-    showToast("Laporan Terkirim!", "success");
-    setUp(false);
   };
+
+  const removeDoc = (index) => setDocs(docs.filter((_, i) => i !== index));
+  const removePhoto = (index) => setPhotos(photos.filter((_, i) => i !== index));
 
   return (
     <div className="animate-fade-in space-y-6 pt-4">
       <h2 className="font-black text-xl text-slate-800 tracking-tight px-2 uppercase">Laporan Baru</h2>
-      <form onSubmit={handleSend} className="bg-white p-7 rounded-[2.5rem] border border-slate-100 shadow-xl space-y-5">
-        <input name="judul" required placeholder="Judul Kegiatan" className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-sm" />
+      <form onSubmit={handleSend} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl space-y-5">
+        <input name="judul" required placeholder="Judul Kegiatan / Kendala" className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-sm" />
         <textarea name="deskripsi" required rows="5" placeholder="Detail laporan..." className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-sm"></textarea>
         
+        {/* AREA TOMBOL LAMPIRAN (DIPISAH) */}
         <div className="space-y-3">
-          {file ? (
-            <div className="flex items-center gap-4 bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
-              <FileIcon size={20} className="text-indigo-600" />
-              <p className="flex-1 text-[10px] font-black truncate">{file.name}</p>
-              <button type="button" onClick={() => setFile(null)} className="text-rose-500"><XCircle size={18} /></button>
-            </div>
-          ) : (
-            <button type="button" onClick={() => fRef.current.click()} className="w-full p-5 border-2 border-dashed border-slate-200 bg-slate-50 rounded-2xl flex items-center gap-4 text-slate-400 active:scale-95">
-              <Plus size={20} /> <span className="font-black text-[10px] uppercase tracking-widest">Tambah Lampiran (PDF/DOCX/XLSX/IMG)</span>
+          <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Lampiran Pendukung</label>
+          <div className="grid grid-cols-2 gap-3">
+            <button type="button" onClick={() => photoRef.current.click()} className="py-4 border-2 border-dashed border-blue-200 bg-blue-50 text-blue-600 rounded-2xl flex flex-col items-center gap-2 active:scale-95 transition-all">
+              <Camera size={20} /> <span className="font-black text-[9px] uppercase tracking-widest">Tambah Foto</span>
             </button>
-          )}
-          <input type="file" ref={fRef} onChange={(e) => setFile(e.target.files[0])} className="hidden" />
+            <button type="button" onClick={() => docRef.current.click()} className="py-4 border-2 border-dashed border-indigo-200 bg-indigo-50 text-indigo-600 rounded-2xl flex flex-col items-center gap-2 active:scale-95 transition-all">
+              <FileIcon size={20} /> <span className="font-black text-[9px] uppercase tracking-widest">Tambah Dokumen</span>
+            </button>
+          </div>
+          
+          {/* Input Hidden dengan multiple file support */}
+          <input type="file" ref={photoRef} multiple accept="image/*" onChange={(e) => setPhotos([...photos, ...Array.from(e.target.files)])} className="hidden" />
+          <input type="file" ref={docRef} multiple accept=".pdf,.doc,.docx,.xls,.xlsx" onChange={(e) => setDocs([...docs, ...Array.from(e.target.files)])} className="hidden" />
         </div>
 
-        <button type="submit" disabled={up} className="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all text-xs tracking-widest">
-          {up ? 'MENGIRIM...' : 'KIRIM LAPORAN SEKARANG'}
+        {/* LIST FILE YANG AKAN DIUPLOAD */}
+        {(photos.length > 0 || docs.length > 0) && (
+          <div className="space-y-2 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+            {photos.map((f, i) => (
+              <div key={`p-${i}`} className="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-slate-100">
+                <ImageIcon size={16} className="text-blue-500" />
+                <p className="flex-1 text-[10px] font-bold truncate">{f.name}</p>
+                <button type="button" onClick={() => removePhoto(i)} className="text-rose-400 p-1"><XCircle size={16} /></button>
+              </div>
+            ))}
+            {docs.map((f, i) => (
+              <div key={`d-${i}`} className="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-slate-100">
+                <FileText size={16} className="text-indigo-500" />
+                <p className="flex-1 text-[10px] font-bold truncate">{f.name}</p>
+                <button type="button" onClick={() => removeDoc(i)} className="text-rose-400 p-1"><XCircle size={16} /></button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <button type="submit" disabled={up} className="w-full py-5 bg-slate-800 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all text-[10px] tracking-widest uppercase">
+          {up ? 'MENGIRIM DATA & LOKASI...' : 'KIRIM LAPORAN SEKARANG'}
         </button>
       </form>
     </div>
