@@ -714,7 +714,6 @@ function ProfileTab({ profile, onUpdate, showToast }) {
   const [up, setUp] = useState(false);
   const fRef = useRef();
 
-  // 1. Fungsi Upload Foto Profil
   const handleAvatar = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -730,7 +729,6 @@ function ProfileTab({ profile, onUpdate, showToast }) {
     setUp(false);
   };
 
-  // 2. Fungsi Update Password
   const handleUpdatePassword = async () => {
     if (password.length < 6) {
       showToast("Password minimal 6 karakter!", "error");
@@ -738,26 +736,22 @@ function ProfileTab({ profile, onUpdate, showToast }) {
     }
     setUp(true);
     showToast("Memproses password baru...", "info");
-    // Fitur bawaan Supabase untuk ganti password user yang sedang login
     const { error } = await supabase.auth.updateUser({ password: password });
     if (error) {
       showToast(error.message, "error");
     } else {
       showToast("Password Berhasil Diubah!", "success");
-      setPassword(''); // Kosongkan kolom setelah berhasil
+      setPassword(''); 
     }
     setUp(false);
   };
 
-  // 3. Fungsi Keluar Akun (Logout)
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
 
   return (
     <div className="animate-fade-in space-y-6 pt-4 pb-12">
-      
-      {/* --- FOTO PROFIL --- */}
       <div className="text-center">
         <div className="relative w-36 h-36 mx-auto mb-5">
           <div className="w-full h-full rounded-[3rem] bg-slate-100 overflow-hidden border-8 border-white shadow-2xl flex items-center justify-center">
@@ -771,12 +765,10 @@ function ProfileTab({ profile, onUpdate, showToast }) {
         <h3 className="font-black text-xl text-slate-800 tracking-tight mt-1">{profile?.full_name}</h3>
       </div>
       
-      {/* --- SECTION 1: DATA KARYAWAN --- */}
       <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 space-y-5 shadow-xl shadow-blue-50/20">
         <h4 className="font-black text-[10px] text-slate-800 uppercase tracking-widest flex items-center gap-2 mb-2">
           <User size={16} className="text-blue-500"/> Data Pribadi
         </h4>
-
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 opacity-70">
             <label className="text-[8px] font-black text-slate-400 mb-1 block uppercase tracking-widest">NIK Karyawan</label>
@@ -787,12 +779,10 @@ function ProfileTab({ profile, onUpdate, showToast }) {
             <p className="font-black text-xs text-slate-800 tracking-wider truncate">{profile?.department || 'Operasional'}</p>
           </div>
         </div>
-
         <div>
           <label className="text-[9px] font-black text-slate-400 ml-2 mb-1 block uppercase tracking-widest">Nama Lengkap</label>
           <input value={name} onChange={e => setName(e.target.value)} placeholder="Nama Lengkap..." className="w-full p-4.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:border-blue-300 transition-all" />
         </div>
-
         <div>
           <label className="text-[9px] font-black text-slate-400 ml-2 mb-1 block uppercase tracking-widest">No. WhatsApp / HP</label>
           <div className="relative">
@@ -800,71 +790,30 @@ function ProfileTab({ profile, onUpdate, showToast }) {
             <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="Contoh: 081234..." className="w-full p-4.5 pl-11 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:border-blue-300 transition-all" />
           </div>
         </div>
-
         <button onClick={() => onUpdate({ full_name: name, phone: phone })} className="w-full py-5 bg-blue-600 text-white font-black rounded-2xl flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all text-[10px] tracking-widest uppercase">
           <Save size={16} /> Simpan Data Diri
         </button>
       </div>
 
-      {/* --- SECTION 2: KEAMANAN (GANTI PASSWORD) --- */}
       <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 space-y-5 shadow-xl shadow-rose-50/20">
         <h4 className="font-black text-[10px] text-slate-800 uppercase tracking-widest flex items-center gap-2 mb-2">
           <Lock size={16} className="text-rose-500"/> Keamanan Akun
         </h4>
-        
         <div>
           <label className="text-[9px] font-black text-slate-400 ml-2 mb-1 block uppercase tracking-widest">Password Baru</label>
           <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Ketik minimal 6 karakter..." className="w-full p-4.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:border-rose-300 transition-all" />
         </div>
-
         <button onClick={handleUpdatePassword} disabled={up} className="w-full py-5 bg-rose-50 text-rose-600 font-black rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all text-[10px] tracking-widest uppercase border border-rose-100">
           {up ? 'Memproses...' : 'Update Password'}
         </button>
       </div>
 
-      {/* --- SECTION 3: HELPDESK & LOGOUT --- */}
       <div className="space-y-4 pt-2">
-        {/* Tombol Hubungi Admin - GANTI NOMOR WA DI BAWAH INI */}
         <a href="https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20karyawan%20Vanda%20Tech%20butuh%20bantuan%20aplikasi." target="_blank" rel="noreferrer" className="w-full py-5 bg-emerald-50 text-emerald-600 font-black rounded-[1.5rem] flex items-center justify-center gap-3 active:scale-95 transition-all text-[10px] tracking-widest uppercase border border-emerald-100">
           <HelpCircle size={18} /> Hubungi IT / Admin (WA)
         </a>
-
-        {/* Tombol Logout Raksasa */}
         <button onClick={handleLogout} className="w-full py-5 bg-slate-900 text-white font-black rounded-[1.5rem] flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all text-[10px] tracking-widest uppercase">
           <LogOut size={18} /> Keluar Aplikasi
-        </button>
-      </div>
-
-    </div>
-  );
-}
-
-  return (
-    <div className="animate-fade-in space-y-8 pt-4">
-      <div className="text-center">
-        <div className="relative w-36 h-36 mx-auto mb-5">
-          <div className="w-full h-full rounded-[3rem] bg-slate-100 overflow-hidden border-8 border-white shadow-2xl flex items-center justify-center">
-            {profile?.avatar_url ? <img src={profile.avatar_url} className="w-full h-full object-cover" /> : <User size={48} className="text-slate-300" />}
-            {up && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-[8px] font-black uppercase tracking-widest">Loading...</div>}
-          </div>
-          <button onClick={() => fRef.current.click()} className="absolute -bottom-2 -right-2 bg-blue-600 p-4 rounded-3xl text-white shadow-xl border-4 border-white active:scale-95"><Camera size={20} /></button>
-          <input type="file" ref={fRef} onChange={handleAvatar} accept="image/*" className="hidden" />
-        </div>
-        <p className="text-blue-600 font-black text-[10px] tracking-[0.3em] uppercase">Vanda Tech Member</p>
-        <h3 className="font-black text-xl text-slate-800 tracking-tight mt-1">{profile?.full_name}</h3>
-      </div>
-      
-      <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 space-y-6 shadow-xl shadow-blue-50/20">
-        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 opacity-60">
-          <label className="text-[9px] font-black text-slate-400 mb-1 block uppercase tracking-widest">ID Karyawan (NIK)</label>
-          <p className="font-black text-slate-800 tracking-wider">{profile?.nik}</p>
-        </div>
-        <div>
-          <label className="text-[9px] font-black text-slate-400 ml-2 mb-1 block uppercase tracking-widest">Ubah Nama Lengkap</label>
-          <input value={name} onChange={e => setName(e.target.value)} className="w-full p-4.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-sm" />
-        </div>
-        <button onClick={() => onUpdate({ full_name: name })} className="w-full py-5 bg-blue-600 text-white font-black rounded-2xl flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all text-xs tracking-widest">
-          <Save size={18} /> Simpan Perubahan
         </button>
       </div>
     </div>
