@@ -129,10 +129,13 @@ export default function App() {
   const hasAbsenPulang = attendanceData.some(a => new Date(a.timestamp).toDateString() === new Date().toDateString() && a.jenis === 'Pulang');
 
   return (
-    <div className="min-h-screen bg-slate-50 flex justify-center font-sans overflow-x-hidden">
-      <div className="w-full max-w-md bg-white min-h-screen shadow-2xl relative flex flex-col">
+    // 1. UBAH DARI 'min-h-screen' JADI 'h-screen' & TAMBAH 'overflow-hidden'
+    <div className="h-screen bg-slate-50 flex justify-center font-sans overflow-hidden">
+      
+      {/* 2. UBAH DARI 'min-h-screen' JADI 'h-full' */}
+      <div className="w-full max-w-md bg-white h-full shadow-2xl relative flex flex-col">
         
-        {/* HEADER */}
+        {/* HEADER (Otomatis stuck di atas karena shrink-0) */}
         <header className="bg-gradient-to-br from-blue-700 to-indigo-950 text-white p-6 pb-12 rounded-b-[3rem] shadow-xl shrink-0 z-20 relative">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-3">
@@ -153,7 +156,7 @@ export default function App() {
         </header>
 
         {/* DASHBOARD CONTENT (SCROLLABLE) */}
-        <main className="flex-1 overflow-y-auto px-6 -mt-6 pb-32 relative z-10 scrollbar-hide">
+        <main className="flex-1 overflow-y-auto px-6 -mt-6 pt-10 pb-28 relative z-10 scrollbar-hide">
           {toast && <Toast message={toast.message} type={toast.type} />}
 
           {activeTab === 'home' && (
@@ -194,8 +197,8 @@ export default function App() {
           {activeTab === 'profile' && <ProfileTab profile={profile} onUpdate={(p) => updateProfile(session.user.id, p)} showToast={showToast} />}
         </main>
 
-        {/* BOTTOM NAV */}
-        <nav className="fixed bottom-0 w-full max-w-md bg-white/95 border-t px-8 py-3 flex justify-between z-30 pb-safe backdrop-blur-lg rounded-t-[2.5rem] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+        {/* BOTTOM NAV (Ubah tulisan 'fixed' jadi 'absolute' dan hapus 'max-w-md') */}
+        <nav className="absolute bottom-0 w-full bg-white/95 border-t px-8 py-3 flex justify-between z-30 pb-safe backdrop-blur-lg rounded-t-[2.5rem] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
           <NavBtn icon={<Home size={20}/>} label="BERANDA" active={activeTab==='home'} onClick={() => setActiveTab('home')} />
           <NavBtn icon={<Clock size={20}/>} label="RIWAYAT" active={activeTab==='summary'} onClick={() => setActiveTab('summary')} />
           <NavBtn icon={<User size={20}/>} label="PROFIL" active={activeTab==='profile'} onClick={() => setActiveTab('profile')} />
