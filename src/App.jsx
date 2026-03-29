@@ -184,47 +184,81 @@ export default function App() {
 
 function AuthPage({ showToast }) {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
+  const [nik, setNik] = useState(''); // Ganti email jadi NIK
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
 
   const handleAuth = async (e) => {
     e.preventDefault();
+    
+    // Trik: Ubah NIK menjadi format email internal (staf tidak tahu)
+    const fakeEmail = `${nik}@vanda.id`;
+
     if (isLogin) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) showToast(error.message, "error");
+      const { error } = await supabase.auth.signInWithPassword({ 
+        email: fakeEmail, 
+        password 
+      });
+      if (error) showToast("NIK atau Password Salah!", "error");
     } else {
       const { error } = await supabase.auth.signUp({ 
-        email, password, 
-        options: { data: { full_name: name } } 
+        email: fakeEmail, 
+        password, 
+        options: { 
+          data: { 
+            full_name: name,
+            nik: nik // Simpan NIK asli ke metadata
+          } 
+        } 
       });
       if (error) showToast(error.message, "error");
-      else showToast("Cek email untuk verifikasi!", "success");
+      else showToast("Pendaftaran Berhasil! Silakan Login.", "success");
     }
   };
 
   return (
-    <div className="min-h-screen bg-blue-700 flex items-center justify-center p-6 font-sans">
+    <div className="min-h-screen bg-indigo-900 flex items-center justify-center p-6 font-sans">
       <div className="w-full max-w-md bg-white rounded-[2.5rem] p-8 shadow-2xl">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-blue-600">
-            <LogIn size={32} />
+          <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-indigo-600">
+            <User size={32} />
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">{isLogin ? 'Selamat Datang' : 'Daftar Akun'}</h1>
-          <p className="text-slate-500 text-sm">Aplikasi Absensi Vanda Tech</p>
+          <h1 className="text-2xl font-bold text-slate-800">{isLogin ? 'Login Staf' : 'Registrasi Staf'}</h1>
+          <p className="text-slate-500 text-sm">SYNTEGRA SERVICES - VANDA TECH</p>
         </div>
+
         <form onSubmit={handleAuth} className="space-y-4">
           {!isLogin && (
-            <input type="text" placeholder="Nama Lengkap" className="w-full p-4 bg-slate-100 rounded-2xl outline-none focus:ring-2 ring-blue-500" value={name} onChange={e => setName(e.target.value)} required />
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-slate-400 ml-4 uppercase">Nama Lengkap</label>
+              <input type="text" placeholder="Masukkan Nama" className="w-full p-4 bg-slate-100 rounded-2xl outline-none focus:ring-2 ring-indigo-500 text-sm" value={name} onChange={e => setName(e.target.value)} required />
+            </div>
           )}
-          <input type="email" placeholder="Email Kantor" className="w-full p-4 bg-slate-100 rounded-2xl outline-none focus:ring-2 ring-blue-500" value={email} onChange={e => setEmail(e.target.value)} required />
-          <input type="password" placeholder="Password" className="w-full p-4 bg-slate-100 rounded-2xl outline-none focus:ring-2 ring-blue-500" value={password} onChange={e => setPassword(e.target.value)} required />
-          <button type="submit" className="w-full py-4 bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-200">
-            {isLogin ? 'Masuk Sekarang' : 'Daftar Sekarang'}
+          
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 ml-4 uppercase">NIK (Nomor Induk Kependudukan)</label>
+            <input 
+              type="text" 
+              placeholder="Contoh: 3201XXXXXXXX" 
+              className="w-full p-4 bg-slate-100 rounded-2xl outline-none focus:ring-2 ring-indigo-500 text-sm" 
+              value={nik} 
+              onChange={e => setNik(e.target.value.replace(/[^0-9]/g, ''))} // Hanya boleh angka
+              required 
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 ml-4 uppercase">Password</label>
+            <input type="password" placeholder="Masukkan Password" className="w-full p-4 bg-slate-100 rounded-2xl outline-none focus:ring-2 ring-indigo-500 text-sm" value={password} onChange={e => setPassword(e.target.value)} required />
+          </div>
+
+          <button type="submit" className="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg shadow-indigo-200 mt-4 active:scale-95 transition-all">
+            {isLogin ? 'MASUK' : 'DAFTAR'}
           </button>
         </form>
-        <button onClick={() => setIsLogin(!isLogin)} className="w-full mt-6 text-sm font-semibold text-blue-600">
-          {isLogin ? 'Belum punya akun? Daftar' : 'Sudah punya akun? Login'}
+
+        <button onClick={() => setIsLogin(!isLogin)} className="w-full mt-6 text-sm font-bold text-indigo-600">
+          {isLogin ? 'Belum punya akun? Hubungi Admin / Daftar' : 'Sudah punya akun? Login'}
         </button>
       </div>
     </div>
