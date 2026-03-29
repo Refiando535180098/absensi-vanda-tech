@@ -218,7 +218,7 @@ export default function App() {
 // --- TAB RINGKASAN (Combined History) ---
 function SummaryTab({ attendanceData, reportData, historyType, setHistoryType }) {
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="animate-fade-in space-y-6 md:p-10">
       <h2 className="font-black text-2xl text-slate-800 tracking-tight">Ringkasan Aktivitas</h2>
       <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-inner">
         <button onClick={() => setHistoryType('attendance')} className={`flex-1 py-3 text-xs font-black tracking-wider rounded-xl transition-all ${historyType === 'attendance' ? 'bg-white text-blue-700 shadow shadow-blue-50' : 'text-slate-500'}`}>ABSENSI</button>
