@@ -460,25 +460,6 @@ function FaceScanAnimation({ score, onConfirm, onReset }) {
   );
 }
 
-function SummaryTab({ attendanceData, reportData, historyType, setHistoryType }) {
-  return (
-    <div className="animate-fade-in space-y-6 pt-4">
-      <h2 className="font-black text-xl text-slate-800 tracking-tight px-2 uppercase">Aktivitas Saya</h2>
-      <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-inner">
-        <button onClick={() => setHistoryType('attendance')} className={`flex-1 py-3 text-[10px] font-black tracking-widest rounded-xl transition-all ${historyType === 'attendance' ? 'bg-white text-blue-700 shadow shadow-blue-50' : 'text-slate-500'}`}>ABSENSI</button>
-        <button onClick={() => setHistoryType('reports')} className={`flex-1 py-3 text-[10px] font-black tracking-widest rounded-xl transition-all ${historyType === 'reports' ? 'bg-white text-indigo-700 shadow shadow-indigo-50' : 'text-slate-500'}`}>LAPORAN</button>
-      </div>
-      <div className="space-y-3">
-        {historyType === 'attendance' ? (
-          attendanceData.length > 0 ? attendanceData.map(item => <Card key={item.id} title={`Absen ${item.jenis}`} subtitle={new Date(item.timestamp).toLocaleString('id-ID', {weekday:'short', hour:'2-digit', minute:'2-digit'})} icon={<Clock size={16}/>} color="blue" />) : <NoData />
-        ) : (
-          reportData.length > 0 ? reportData.map(item => <Card key={item.id} title={item.judul} subtitle={item.deskripsi} icon={<FileText size={16}/>} color="indigo" />) : <NoData />
-        )}
-      </div>
-    </div>
-  );
-}
-
 function ReportForm({ onSubmit, showToast, profile }) {
   const [file, setFile] = useState(null);
   const [up, setUp] = useState(false);
