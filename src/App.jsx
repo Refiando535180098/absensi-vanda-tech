@@ -119,7 +119,7 @@ export default function App() {
           {activeTab === 'home' && (
             <div className="animate-fade-in space-y-6">
               {/* Ringkasan Dashboard */}
-              <div className="bg-white rounded-3xl p-6 shadow-xl shadow-blue-50 border border-slate-50 flex items-center gap-5">
+              <div className="bg-white rounded-3xl p-6 shadow-xl shadow-blue-50 border border-slate-50 flex items-center gap-20">
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-inner ${hasAbsenMasuk ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
                   {hasAbsenMasuk ? <CheckCircle size={32} /> : <Home size={32} />}
                 </div>
