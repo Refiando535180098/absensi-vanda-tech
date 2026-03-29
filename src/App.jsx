@@ -140,9 +140,9 @@ export default function App() {
         <header className="bg-gradient-to-br from-blue-700 to-indigo-950 text-white p-6 pb-12 rounded-b-[3rem] shadow-xl shrink-0 z-20 relative">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-3">
-              <div>
+              {/* <div>
                 <h1 className="text-lg font-black truncate w-5xl">Nama Perusahaan</h1>
-              </div>
+              </div> */}
               <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 overflow-hidden flex items-center justify-center">
                 {profile?.avatar_url ? <img src={profile.avatar_url} className="w-full h-full object-cover" /> : <User size={24} />}
               </div>
