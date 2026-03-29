@@ -145,6 +145,7 @@ export default function App() {
                       <div className={`p-4 rounded-3xl ${hasAbsenMasuk ? 'bg-slate-100' : 'bg-blue-50'}`}><LogIn size={32} /></div>
                       <span className="font-black text-xs uppercase tracking-widest">Absen Masuk</span>
                     </button>
+                    
                     {/* Absen Pulang - Trigger Bukti Kamera */}
                     <button onClick={() => startAttendanceAction('Pulang')} disabled={!hasAbsenMasuk || hasAbsenPulang} className={`p-8 rounded-[2rem] border-2 bg-white transition-all disabled:opacity-30 ${!hasAbsenMasuk || hasAbsenPulang ? 'border-slate-100 text-slate-300' : 'border-rose-50 border-rose-100 text-rose-600 shadow-xl shadow-rose-50 active:scale-90 hover:border-rose-200'}`}>
                       <div className={`p-4 rounded-3xl ${!hasAbsenMasuk || hasAbsenPulang ? 'bg-slate-100' : 'bg-rose-50'}`}><LogOut size={32} /></div>
@@ -159,8 +160,10 @@ export default function App() {
                     </button>
                   </div>
                 ) : attendanceStep === 'verifying' ? (
-                  {/* Animasi Verifikasi Wajah Modern */}
-                  <FaceVerificationAnimation score={faceScore} onConfirm={confirmAttendance} onReset={resetAttendance} />
+                  <> {/* Tambahkan pembungkus Fragment di sini */}
+                    {/* Animasi Verifikasi Wajah Modern */}
+                    <FaceVerificationAnimation score={faceScore} onConfirm={confirmAttendance} onReset={resetAttendance} />
+                  </>
                 ) : null}
               </div>
 
