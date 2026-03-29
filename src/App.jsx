@@ -69,7 +69,7 @@ export default function App() {
 
   const showToast = (message, type = 'info') => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 5000); 
   };
 
   // --- GET LOCATION ---
@@ -650,7 +650,27 @@ const Card = ({ title, subtitle, icon, color }) => (
 const NoData = () => <p className="text-center text-slate-400 text-[10px] font-black py-16 uppercase tracking-[0.3em]">Belum Ada Data</p>;
 
 const Toast = ({ message, type }) => (
-  <div className={`fixed top-6 left-6 right-6 p-5 rounded-3xl shadow-2xl flex items-center justify-center gap-3 text-[10px] font-black tracking-widest uppercase z-50 animate-fade-in-down ${type === 'success' ? 'bg-emerald-500 text-white' : 'bg-rose-600 text-white'}`}>
-    {message}
+  // Wadah full screen dengan efek blur
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm animate-fade-in pointer-events-none">
+    
+    // Kotak Pop-up melayang di tengah
+    <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl flex flex-col items-center text-center w-full max-w-xs border border-white animate-fade-in-down pointer-events-auto">
+      
+      {/* Ikon besar menyesuaikan status (Sukses/Gagal) */}
+      <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center mb-5 shadow-inner ${type === 'success' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+        {type === 'success' ? <CheckCircle size={40} /> : <AlertTriangle size={40} />}
+      </div>
+      
+      {/* Judul Pop-up */}
+      <h3 className={`font-black text-2xl tracking-tight uppercase mb-2 ${type === 'success' ? 'text-emerald-600' : 'text-rose-600'}`}>
+        {type === 'success' ? 'BERHASIL' : 'PERHATIAN'}
+      </h3>
+      
+      {/* Pesan Notifikasi */}
+      <p className="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed">
+        {message}
+      </p>
+      
+    </div>
   </div>
 );
