@@ -451,10 +451,10 @@ function FaceScanAnimation({ score, onConfirm, onReset }) {
         <div className="w-full mt-8 text-center space-y-5">
           <div className="bg-emerald-50 p-4 rounded-2xl flex items-center gap-4 border border-emerald-100">
             <CheckCircle size={24} className="text-emerald-500" />
-            <div className="text-left">
+            {/* <div className="text-left">
               <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Match Confirmed</p>
               <p className="font-black text-emerald-600 text-lg leading-none">{score}% Accuracy</p>
-            </div>
+            </div> */}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <button onClick={onReset} className="py-4 bg-slate-100 text-slate-500 font-black rounded-2xl text-[10px] uppercase tracking-widest">Batal</button>
