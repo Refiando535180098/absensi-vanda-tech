@@ -233,6 +233,7 @@ export default function App() {
 // --- TAB SUMMARY (Grouped by Date Dropdown) ---
 function SummaryTab({ attendanceData, reportData, leaveData, historyType, setHistoryType }) {
   const [openDate, setOpenDate] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null); // Menyimpan data yang di-klik
 
   const grouped = (data) => {
     return data.reduce((acc, item) => {
@@ -249,9 +250,10 @@ function SummaryTab({ attendanceData, reportData, leaveData, historyType, setHis
     <div className="animate-fade-in space-y-6 pt-2">
       <div className="flex bg-slate-100 p-1.5 rounded-2xl shadow-inner">
         {['attendance', 'reports', 'leaves'].map(t => (
-          <button key={t} onClick={() => setHistoryType(t)} className={`flex-1 py-2.5 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all ${historyType === t ? 'bg-white text-blue-600 shadow' : 'text-slate-400'}`}>{t}</button>
+          <button key={t} onClick={() => setHistoryType(t)} className={`flex-1 py-2.5 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all ${historyType === t ? 'bg-white text-blue-600 shadow' : 'text-slate-400'}`}>{t === 'leaves' ? 'CUTI' : t}</button>
         ))}
       </div>
+      
       <div className="space-y-3 pb-10">
         {Object.keys(currentGroup).length > 0 ? Object.keys(currentGroup).sort((a,b) => new Date(b) - new Date(a)).map(date => (
           <div key={date} className="space-y-2">
@@ -259,24 +261,32 @@ function SummaryTab({ attendanceData, reportData, leaveData, historyType, setHis
               {date === new Date().toDateString() ? 'Hari Ini' : date}
               {openDate === date ? <ChevronDown size={14}/> : <ChevronRight size={14}/>}
             </button>
+            
             {openDate === date && currentGroup[date].map(item => (
-              <div key={item.id} className="bg-white p-4 rounded-2xl border border-slate-100 flex items-center gap-4 shadow-sm">
-                <div className={`p-3 rounded-xl ${historyType === 'attendance' ? 'bg-blue-50 text-blue-600' : 'bg-indigo-50 text-indigo-600'}`}>
-                  {historyType === 'attendance' ? <Clock size={16}/> : <FileText size={16}/>}
+              <div 
+                key={item.id} 
+                onClick={() => setSelectedItem(item)} 
+                className="bg-white p-4 rounded-2xl border border-slate-100 flex items-center gap-4 shadow-sm cursor-pointer active:scale-95 transition-all hover:border-blue-200"
+              >
+                <div className={`p-3 rounded-xl ${historyType === 'attendance' ? 'bg-blue-50 text-blue-600' : historyType === 'reports' ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                  {historyType === 'attendance' ? <Clock size={16}/> : historyType === 'reports' ? <FileText size={16}/> : <Calendar size={16}/>}
                 </div>
                 <div className="flex-1 overflow-hidden">
                   <h4 className="font-black text-[10px] uppercase tracking-wider">{item.jenis || item.judul || item.jenis_cuti}</h4>
                   <p className="text-[9px] font-bold text-slate-400 truncate mt-1">
                     {new Date(item.timestamp).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})} 
-                    {item.manual_reason && ` | Manual: ${item.manual_reason}`}
+                    {item.manual_reason && ` | Manual`}
                   </p>
                 </div>
-                {item.location_map && <a href={item.location_map} target="_blank" className="p-2 bg-blue-50 text-blue-600 rounded-lg"><MapPin size={14}/></a>}
+                <ChevronRight size={14} className="text-slate-300" />
               </div>
             ))}
           </div>
         )) : <NoData />}
       </div>
+
+      {/* POP-UP DETAIL MUNCUL DI SINI */}
+      <DetailModal item={selectedItem} type={historyType} onClose={() => setSelectedItem(null)} />
     </div>
   );
 }
@@ -671,3 +681,114 @@ const Toast = ({ message, type }) => (
     </div>
   </div>
 );
+
+// --- KOMPONEN POP-UP DETAIL RIWAYAT ---
+function DetailModal({ item, type, onClose }) {
+  if (!item) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl relative flex flex-col max-h-[85vh] animate-fade-in-down">
+        
+        {/* Header Modal */}
+        <div className="flex justify-between items-center mb-5">
+          <div>
+            <p className="text-[9px] font-black text-blue-500 tracking-widest uppercase">Detail Riwayat</p>
+            <h3 className="font-black text-xl tracking-tight text-slate-800 uppercase">{type}</h3>
+          </div>
+          <button onClick={onClose} className="p-2 bg-rose-50 text-rose-500 rounded-2xl active:scale-95"><XCircle size={24}/></button>
+        </div>
+        
+        {/* Konten Bisa Di-Scroll */}
+        <div className="overflow-y-auto pr-2 space-y-4 scrollbar-hide">
+          
+          {/* JIKA YANG DIKLIK ADALAH ABSENSI */}
+          {type === 'attendance' && (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <DetailRow label="Jenis" value={`Absen ${item.jenis}`} />
+                <DetailRow label="Waktu" value={new Date(item.timestamp).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})} />
+              </div>
+              <DetailRow label="Tanggal" value={new Date(item.timestamp).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} />
+              
+              {item.status === 'Manual' && <DetailRow label="Alasan Manual" value={item.manual_reason} />}
+              
+              {item.evidence_url && (
+                <div className="mt-4">
+                  <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Foto Bukti Kehadiran</p>
+                  <div className="border-4 border-slate-100 rounded-3xl overflow-hidden shadow-inner">
+                    <img src={item.evidence_url} className="w-full h-auto object-cover" alt="Bukti Absen" />
+                  </div>
+                </div>
+              )}
+              
+              {item.location_map && (
+                <a href={item.location_map} target="_blank" className="mt-2 flex items-center justify-center gap-3 w-full py-4 bg-blue-50 text-blue-600 rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all">
+                  <MapPin size={18}/> Buka Lokasi di Maps
+                </a>
+              )}
+            </>
+          )}
+
+          {/* JIKA YANG DIKLIK ADALAH LAPORAN */}
+          {type === 'reports' && (
+            <>
+              <DetailRow label="Judul Laporan" value={item.judul} />
+              <DetailRow label="Deskripsi / Kendala" value={item.deskripsi} />
+              
+              {/* Cek apakah ada lokasi laporan */}
+              {item.location_map && (
+                <a href={item.location_map} target="_blank" className="flex items-center gap-3 p-4 bg-blue-50 text-blue-600 rounded-2xl font-black text-[10px] uppercase tracking-widest">
+                  <MapPin size={16}/> Lokasi Pelaporan
+                </a>
+              )}
+
+              {/* Tampilkan daftar file yang dilampirkan */}
+              {item.file_urls && item.file_urls.length > 0 && (
+                <div className="space-y-2 mt-4">
+                  <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Lampiran Tersimpan</p>
+                  {item.file_urls.map((url, i) => {
+                    const isImage = url.match(/\.(jpeg|jpg|gif|png)$/i) != null;
+                    return isImage ? (
+                      <img key={i} src={url} className="w-full rounded-2xl border-2 border-slate-100 mb-2" alt={`Lampiran ${i+1}`} />
+                    ) : (
+                      <a key={i} href={url} target="_blank" className="flex items-center gap-3 p-4 bg-indigo-50 text-indigo-700 rounded-2xl active:scale-95 transition-all">
+                        <FileText size={18} /> <span className="text-[10px] font-black uppercase tracking-widest truncate">Buka Dokumen {i+1}</span>
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* JIKA YANG DIKLIK ADALAH CUTI */}
+          {type === 'leaves' && (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <DetailRow label="Kategori" value={item.jenis_cuti} />
+                <DetailRow label="Status" value={item.status} color={item.status === 'Pending' ? 'text-amber-500' : 'text-emerald-500'} />
+              </div>
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                <DetailRow label="Tanggal Mulai" value={item.tanggal_mulai} />
+                <DetailRow label="Tanggal Selesai" value={item.tanggal_selesai} />
+              </div>
+              <DetailRow label="Alasan / Keterangan" value={item.alasan} />
+            </>
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Komponen kecil pembuat kotak detail
+function DetailRow({ label, value, color = "text-slate-800" }) {
+  return (
+    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">{label}</p>
+      <p className={`font-bold text-sm leading-snug ${color}`}>{value}</p>
+    </div>
+  );
+}
