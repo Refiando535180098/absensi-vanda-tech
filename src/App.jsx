@@ -143,6 +143,7 @@ export default function App() {
                 {profile?.avatar_url ? <img src={profile.avatar_url} className="w-full h-full object-cover" /> : <User size={24} />}
               </div>
               <div>
+                <h1 className="text-lg font-black truncate w-5xl">Nama Perusahaan</h1>
                 <h1 className="text-sm font-black truncate w-32">{profile?.full_name}</h1>
                 <p className="text-[9px] font-bold text-blue-200 tracking-widest uppercase">NIK: {profile?.nik}</p>
               </div>
