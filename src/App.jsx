@@ -232,7 +232,7 @@ export default function App() {
 
 // --- TAB SUMMARY (Grouped by Date Dropdown) ---
 function SummaryTab({ attendanceData, reportData, leaveData, historyType, setHistoryType }) {
-  const [openDate, setOpenDate] = useState(new Date().toDateString());
+  const [openDate, setOpenDate] = useState(null);
 
   const grouped = (data) => {
     return data.reduce((acc, item) => {
